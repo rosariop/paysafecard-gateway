@@ -3,6 +3,7 @@ package de.polito.payment;
 import de.polito.payment.dto.CustomerDTO;
 import de.polito.payment.dto.InitDTO;
 import de.polito.payment.dto.RedirectDTO;
+import de.polito.payment.dto.RedirectResponseDTO;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.inject.Inject;
@@ -28,7 +29,12 @@ public class PaymentResource {
         CustomerDTO customerDTO = new CustomerDTO("1");
         InitDTO initDTO = new InitDTO(99.99, redirectDTO, customerDTO, "https://gidf.com");
 
-        psPaymentService.initPayment(initDTO);
+        Response resp = psPaymentService.initPayment(initDTO);
+        if (resp.getStatus() != 201){
+            return Response.status(Response.Status.fromStatusCode(resp.getStatus())).build();
+        }
+
+        RedirectResponseDTO responseDTO = resp.readEntity(RedirectResponseDTO.class);
 
         return Response.ok().build();
     }
